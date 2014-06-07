@@ -21,25 +21,39 @@ public class UserAction
 	@Autowired  
 	@Qualifier("loginserviceimpl") 
 	LoginService loginserviceimpl;
-	
-	public UserAction()  
-	{
-		// TODO Auto-generated constructor stub
-	}
+
 	
 	@RequestMapping("/register")
 	public ModelAndView RegisterUser(@ModelAttribute("user") User user)
 	{
 		ModelAndView mav = new ModelAndView("index");
 		
-		if(loginserviceimpl.isExist("user_name", user.getUser_name()))
+		if(!loginserviceimpl.register(user))
 		{
 			
 			return null;
 		}
-		loginserviceimpl.save(user);
+		
 		
 		return mav;
 	}
+	
+	@RequestMapping("/login")
+	public ModelAndView UserLogin(@ModelAttribute("user") User user)
+	{
+		ModelAndView mav; 
+		
+		//username is not exist
+		if(!loginserviceimpl.login(user))
+		{
+			return null;
+		}
+		
+		
+		mav = new ModelAndView("index");
+		
+		return mav;
+	}
+	
 	
 }
