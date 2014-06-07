@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"  
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+      xmlns:util="http://www.springframework.org/schema/util"  
+      xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd  
+	  ">  
+   
+   
+<!--******************************用户********************* -->  
+   
+<!--Hibernate 用户持久化访问接口 -->  
+<bean id="userdao" parent="baseDAO" class="com.framework.dao.UserDaoImpl" />  
+
+<bean id="loginserviceimpl" class="com.framework.service.LoginServiceImpl">  
+	<property name="userdao" ref="userdao"></property>  
+</bean>  
+
+
+
+
+<!--事务控制  用注解不用这个 
+<bean id="loginservice" parent="baseTransactionProxy">  
+	<property name="target" ref="loginserviceimpl"/>  
+</bean>  
+
+--> 
+
+
+</beans>  

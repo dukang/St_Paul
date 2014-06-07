@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+
+<!--  
+-DispatcherServlet application context for DeclareOnline's web tier.  
+   
+springmvc 的 DispatcherServlet 对应的配置文件  
+-->  
+
+
+<beans xmlns="http://www.springframework.org/schema/beans"  
+    xmlns:mvc="http://www.springframework.org/schema/mvc"  
+    xmlns:context="http://www.springframework.org/schema/context"  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans  
+  						http://www.springframework.org/schema/beans/spring-beans-4.0.xsd  
+  						http://www.springframework.org/schema/mvc  
+  						http://www.springframework.org/schema/mvc/spring-mvc.xsd  
+  						http://www.springframework.org/schema/context  
+  						http://www.springframework.org/schema/context/spring-context-4.0.xsd
+  						http://www.springframework.org/schema/tx 
+                     	http://www.springframework.org/schema/tx/spring-tx.xsd 
+                     	http://www.springframework.org/schema/aop 
+                     	http://www.springframework.org/schema/aop/spring-aop.xsd">  
+   
+
+   
+<!--  
+-The controllers are autodetected POJOs labeled with the @Controller annotation.  
+Springmvc将在该路径下寻找Controller(有Controller注释的类)  
+-->  
+<context:component-scan base-package="com/framework/action"/>  
+
+
+<!--开启注解 -->  
+<mvc:annotation-driven/>  
+
+
+
+<!--使用依赖控制器类名字的惯例，将URI映射到控制器(开启注解的另一种方式) -->  
+<!--  
+<beanclassbeanclass="org.springframework.web.servlet.mvc.support.ControllerClassNameHandlerMapping"/>  
+<beanclassbeanclass="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"/>  
+启动SpringMVC的注解功能，完成请求和注解POJO的映射  
+<beanclassbeanclass="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"/>  
+-->  
+   
+<!--静态资源访问 -->  
+<mvc:resources location="/resources/" mapping="/resources/**"/>   
+   
+<!--定义Spring MVC 的视图模板文件 -->  
+<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">  
+	<!--支持JSTL -->  
+	<property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>  
+	<!--模板的路径 -->  
+	<property name="prefix" value="/jsp/" />  
+	<!--模板文件后缀 -->  
+	<property name="suffix" value=".jsp" />  
+</bean>  
+   
+   
+<!-- Spring MVC 文件上传配置 -->  
+<bean id="multipartResolver" 
+	class="org.springframework.web.multipart.commons.CommonsMultipartResolver"  >    
+		<property name="defaultEncoding" value="UTF-8" />
+		<property name="maxUploadSize">  
+		<value>10485760000</value>  
+		</property>  
+		<property name="maxInMemorySize">  
+		<value>40960</value>  
+		</property>          
+   
+</bean>  
+
+<!-- Base -->
+<bean id="baseDAO" abstract="true" class="com.framework.dao.BaseDAOImpl">
+        <property name="sessionFactory">
+            <ref bean="sessionFactory" />
+        </property>
+</bean>
+<bean id="BaseService" abstract="true" class="com.framework.dao.BaseServiceImpl">
+       <property name="dao">
+            <ref bean="baseDAO" />
+        </property>
+</bean>
+
+ 
+
+</beans>  

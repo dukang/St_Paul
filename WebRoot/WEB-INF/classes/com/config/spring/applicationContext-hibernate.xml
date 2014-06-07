@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"  
+xmlns:aop="http://www.springframework.org/schema/aop"  
+xmlns:context="http://www.springframework.org/schema/context"  
+xmlns:p="http://www.springframework.org/schema/p"  
+xmlns:tx="http://www.springframework.org/schema/tx"  
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+      xmlns:util="http://www.springframework.org/schema/util"  
+      xsi:schemaLocation="http://www.springframework.org/schema/beans 
+      	      http://www.springframework.org/schema/beans/spring-beans-3.0.xsd  
+              http://www.springframework.org/schema/aop
+              http://www.springframework.org/schema/aop/spring-aop-4.0.xsd  
+              http://www.springframework.org/schema/context
+              http://www.springframework.org/schema/context/spring-context-3.0.xsd  
+              http://www.springframework.org/schema/tx
+              http://www.springframework.org/schema/tx/spring-tx-3.0.xsd  
+			  http://www.springframework.org/schema/util
+			  http://www.springframework.org/schema/util/spring-util-2.0.xsd
+			  " 
+			  default-lazy-init="false">  
+
+	<!--property configure本配置文件负责加载变量信息必须在在spring配置文件的最前面加载（第一个加载） -->  
+	<!--载入properties配置文件，以${key}的方式引用 -->  
+	<bean id="propertyConfigurer"  
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">  
+		<property name="locations">  
+		<list>  
+			<value>classpath:com/config/properties/mvcdb.properties</value>  
+		</list>  
+		</property>  
+	</bean>  
+	
+	<!--data configure -->  
+	<!--配置连接池（jdbc方式） -->  
+	<!--<bean id="dataSource"class="org.springframework.jdbc.datasource.DriverManagerDataSource">  
+	<property name="driverClassName" value="${mvcdb.mysql.driver}"/>  
+	<property name="url" value="${mvcdb.mysql.url}"/>  
+	<property name="username" value="${mvcdb.mysql.user}"/>  
+	<property name="password" value="${mvcdb.mysql.password}"/>  
+	</bean>-->  
+	
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"  destroy-method="close">  
+		<property name="driverClassName">  
+			<value>${mvcdb.mysql.driver}</value>  
+		</property>  
+		
+		<property name="url">  
+			<value>${mvcdb.mysql.url}</value>  
+		</property>
+		  
+		<property name="username">  
+			<value>${mvcdb.mysql.username}</value>  
+		</property>
+		  
+		<property name="password">  
+			<value>${mvcdb.mysql.password}</value>  
+		</property>  
+		 
+		<property name="initialSize">  
+			<value>${mvcdb.mysql.initialSize}</value>  
+		</property>  
+		
+		<property name="maxActive">  
+			<value>${mvcdb.mysql.maxActive}</value>  
+		</property>  
+		
+		<property name="minIdle">  
+			<value>${mvcdb.mysql.maxActive}</value>  
+		</property>  
+		
+		<property name="maxIdle">  
+			<value>${mvcdb.mysql.maxActive}</value>  
+		</property>  
+		
+		<property name="maxWait">  
+			<value>${mvcdb.mysql.maxWait}</value>  
+		</property>  
+		
+		<property name="testOnBorrow">  
+			<value>${mvcdb.mysql.testOnBorrow}</value>  
+		</property> 
+		 
+		<property name="testWhileIdle">  
+			<value>${mvcdb.mysql.testWhileIdle}</value>  
+		</property>  
+		<!--
+		<property name="validationQuery">  
+			<value>${mvcdb.mysql.validationQuery}</value>  
+		</property>   -->
+	</bean>  
+	
+	<!--配置hibernate 上下文 -->  
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean" >  
+		<property name="dataSource" ref="dataSource" />  
+		<!--包级扫描 hibernate实体类 -->  
+		<property name="configLocations">  
+		  <list>  
+		<!--<value>com.springmvc.*</value> -->  
+		      <value>classpath:com/config/hibernate/hibernate.cfg.user.xml</value>  
+		  </list>  
+		</property>  
+		
+		<property name="hibernateProperties">
+			<props>
+				
+				<prop key="hibernate.cache.provider_class">net.sf.ehcache.hibernate.EhCacheProvider</prop>  
+				<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</prop>  
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>  
+				<prop key="hibernate.cache.use_query_cache">false</prop>  
+				<prop key="hibernate.show_sql">true</prop>  
+				<!--<prop key="hibernate.hbm2ddl.auto">update</prop>  -->  
+				<prop key="hibernate.cache.use_second_level_cache">false</prop>  
+				<prop key="hibernate.max_fetch_depth">2</prop>  
+				<prop key="hibernate.jdbc.fetch_size">50</prop>  
+				<prop key="hibernate.jdbc.batch_size">50</prop>  
+				<prop key="hibernate.use_outer_join">false</prop>  
+				<prop key="hibernate.format_sql">true</prop> 
+			</props>
+		</property>
+	</bean>  
+	
+	
+	
+	  
+	<!-- 定义事务管理器（声明式的事务） -->   
+	<bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">  
+		<property name="sessionFactory">  
+		<ref local="sessionFactory" />  
+		</property>  
+	</bean>  
+	
+	<!-- 使用注解模式 配置事务 -->
+	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true" />   
+	
+	
+	<!--配置启用事务的动态代理   用注解事务不用这个
+	<bean id="baseTransactionProxy" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean" abstract="true">  
+		
+		<property name="transactionManager">  
+			<ref bean="transactionManager" />  
+		</property>  
+		
+		<property name="proxyTargetClass" value="true"/> 
+		 
+		<property name="transactionAttributes">  
+		<props>  
+			<prop key="insert*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="active*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="end*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="lock*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="unLock*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="update*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="modify*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="delete*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="remove*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="del*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="add*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="save*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="set*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="exchage*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="sort*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="do*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="undo*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="transact*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="enrolment*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="accept*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="init*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="edit*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="create*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="support*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="active*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="mapping*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="reset*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="change*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="submit*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="draft*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="assign*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="close*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="suspend*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="publish*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="revoke*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="print*">PROPAGATION_REQUIRED,-Exception</prop>                                  
+			<prop key="undeploy*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="suspend*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="resume*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="rand*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="send*">PROPAGATION_REQUIRED,-Exception</prop>  
+			<prop key="*">PROPAGATION_REQUIRED,readOnly</prop>  
+		</props>  
+		</property>  
+	</bean>
+	
+	-->
+</beans>

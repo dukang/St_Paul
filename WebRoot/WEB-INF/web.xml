@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0">
+  <display-name>圣保罗</display-name>
+  
+  <welcome-file-list>  
+  
+  	<welcome-file>/jsp/index.jsp</welcome-file>  
+
+  </welcome-file-list>  
+  
+
+  
+  <!--springMVC 框架加载服务 dispatcher 位置在/applicationContext-springmvc.xml-->  
+  <servlet>  
+  <servlet-name>springMVC</servlet-name>  
+  <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>  
+  <init-param>  
+	  <param-name>contextConfigLocation</param-name>  
+	  <param-value>
+	  	classpath*:com/config/spring/applicationContext-*.xml
+	  </param-value>  
+  </init-param>  
+  <load-on-startup>1</load-on-startup>  
+  </servlet>  
+  <servlet-mapping>  
+  <servlet-name>springMVC</servlet-name>  
+  <url-pattern>/</url-pattern>  
+  </servlet-mapping>  
+  
+  <!--filter配置，解决编码问题 -->  
+  <filter>  
+  <filter-name>encodingFilter</filter-name>  
+  <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>  
+  <init-param>  
+  <param-name>encoding</param-name>  
+  <param-value>UTF-8</param-value>  
+  </init-param>  
+  <init-param>  
+  <param-name>forceEncoding</param-name>  
+  <param-value>true</param-value>  
+  </init-param>  
+  </filter>  
+  <!--encoding filter for jsp page -->  
+  <filter-mapping>  
+  <filter-name>encodingFilter</filter-name>  
+  <url-pattern>/*</url-pattern>  
+  </filter-mapping>  
+  
+  <!--sessionFilter配置，解决session过滤问题 
+  <filter>  
+  <filter-name>sessionFilter</filter-name>  
+  <filter-class>com.springmvc.core.web.filter.SessionFilter</filter-class>  
+  <init-param>  
+  <param-name>notFilter</param-name>  
+  <param-value>/skin/,/index.jsp, /mvc/index, /login, /logout</param-value>  
+  </init-param>  
+  </filter>  
+  <filter-mapping>  
+  <filter-name>sessionFilter</filter-name>  
+  <url-pattern>/*</url-pattern>  
+  </filter-mapping>  
+    --> 
+  <!--OpenSessionInViewFilter配置，解决延迟加载时Session会关闭的问题 
+  <filter>  
+  <filter-name>openSession</filter-name>  
+  <filter-class>org.springframework.orm.hibernate4.support.OpenSessionInViewFilter</filter-class>  
+  </filter>  
+   
+  <filter-mapping>  
+  <filter-name>openSession</filter-name>  
+  <url-pattern>/*</url-pattern>  
+  </filter-mapping>  
+  -->  
+  <!--配置PagerFilter，用来获取分页数据   
+  <filter>  
+  <filter-name>pagerFilter</filter-name>  
+  <filter-class>com.springmvc.core.web.filter.PagerFilter</filter-class>  
+  </filter>  
+  <filter-mapping>  
+  <filter-name>pagerFilter</filter-name>  
+  <url-pattern>/*</url-pattern>  
+  </filter-mapping>  
+  -->
+  
+
+  <!--session time out 23*60 -->  
+  
+  <session-config>   
+        <session-timeout>1380</session-timeout>   
+  </session-config>  
+    
+  
+</web-app>
